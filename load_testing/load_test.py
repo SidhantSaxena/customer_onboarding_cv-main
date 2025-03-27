@@ -12,7 +12,7 @@ class IDOCRProcessorTest(HttpUser):
     @task
     def test_id_ocr_processor(self) -> None:
         """Task to test ID OCR processing endpoint."""
-        payload = json.dumps({"uid": "ashisht"})
+        payload = json.dumps({"uid": "sid"})
         headers = {"Content-Type": "application/json"}
         self.client.post("http://localhost:8055/IDOCRProcessor", data=payload, headers=headers)
 
