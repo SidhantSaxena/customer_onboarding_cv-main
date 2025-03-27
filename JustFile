@@ -1,0 +1,67 @@
+
+# Linux setup
+set shell := ["bash", "-cu"]
+set dotenv-load
+venv := "source .venv/bin/activate"  
+
+# Windows Setup
+# set shell := ["powershell", "-Command"]
+# set dotenv-load
+# venv := "@('.venv\\Scripts\\Activate')"
+
+default:
+  just --list
+
+ruff_check:
+  uv run ruff check --select ALL .
+
+git_log:
+  git log --graph --oneline --all
+
+setup:
+  sudo apt update && sudo apt install cmake && uv sync
+
+frontend:
+  uv run streamlit run frontend/app.py
+
+frontend_win:
+  uv run streamlit run .\frontend\app.py
+
+backend:
+  uv run fastapi run backend/fast_api_server.py
+
+backend_win:
+  uv run fastapi run .\backend\fast_api_server.py
+
+ray_serve:
+  nohup bash -c 'uv run ray stop' &  
+  sleep 20  # to ensure ray stop completes before new start  
+  nohup bash -c 'uv run ray start --head' &  
+  sleep 20  # to ensure ray starts before launching the server  
+  uv run serve run backend/model_server/ray_config.yaml
+
+ray_serve_win:
+  Start-Job { uv run ray stop }
+  Start-Sleep -Seconds 10  # to ensure Ray stop completes before new start
+  Start-Job { uv run ray start --head }
+  Start-Sleep -Seconds 10  # to ensure Ray starts before launching the server
+  uv run serve run .\backend\model_server\ray_config.yaml
+
+run_logger:
+  uv run python ./unified_logging/logging_server.py &
+  tail -f logs/logs.txt
+
+run:
+  just ray_serve &
+  just backend &
+  just frontend
+
+run_win:
+  Start-Process powershell -ArgumentList "just ray_serve_win"; Start-Process powershell -ArgumentList "just backend_win"; Start-Process powershell -ArgumentList "just frontend_win"
+
+load_test_ray:
+  uv run locust -f Load_testing/load_test.py --host=http://localhost:8055
+
+documentation:
+  uv run mkdocs serve
+ 

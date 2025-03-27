@@ -1,0 +1,3 @@
+[server]
+RAY_OTP_SERVICE_URL = "http://localhost:8055/VideoOTPProcessor"
+RAY_OCR_SERVICE_URL = "http://localhost:8055/IDOCRProcessor"

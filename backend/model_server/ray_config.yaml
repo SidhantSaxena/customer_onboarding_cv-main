@@ -1,0 +1,42 @@
+# This file was generated using the `serve build` command on Ray v2.42.1.
+
+proxy_location: EveryNode
+
+http_options:
+  host: 0.0.0.0
+  port: 8055
+
+grpc_options:
+  port: 9000
+  grpc_servicer_functions: []
+
+logging_config:
+  encoding: TEXT
+  log_level: INFO
+  logs_dir: null
+  enable_access_log: true
+
+applications:
+  - name: model_server
+    route_prefix: /VideoOTPProcessor
+    import_path: backend.model_server.server:video_otp_processor_app
+    runtime_env: {}
+
+    deployments:
+      - name: VideoOTPProcessor
+        num_replicas: 1
+        ray_actor_options:
+          num_cpus: 0.5
+          num_gpus: 0.0
+      
+  - name: id_ocr_server
+    route_prefix: /IDOCRProcessor
+    import_path: backend.model_server.server:id_processor_app
+    runtime_env: {}
+
+    deployments:
+      - name: IDOCRProcessor
+        num_replicas: 1
+        ray_actor_options:
+          num_cpus: 0.5
+          num_gpus: 0.0
